@@ -11,9 +11,9 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          lime: "#a3e635",
-          "lime-dark": "#65a30d",
-          neon: "#22d3ee",
+          primary: "#f97316", // orange-500
+          "primary-dark": "#c2410c", // orange-700
+          secondary: "#0891b2", // cyan-600
         },
         surface: {
           900: "#0a0a0f",
@@ -26,8 +26,8 @@ const config: Config = {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        glow: "0 0 20px rgba(163, 230, 53, 0.15)",
-        "glow-lg": "0 0 40px rgba(163, 230, 53, 0.2)",
+        glow: "0 0 20px rgba(249, 115, 22, 0.15)",
+        "glow-lg": "0 0 40px rgba(249, 115, 22, 0.2)",
       },
     },
   },

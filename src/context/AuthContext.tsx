@@ -8,7 +8,9 @@ import {
   ReactNode,
 } from "react";
 import {
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
   User,
@@ -25,6 +27,8 @@ interface AuthContextType {
   authLoading: boolean;
   profileLoading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithEmail: (email: string, pass: string) => Promise<void>;
+  signUpWithEmail: (email: string, pass: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -35,6 +39,8 @@ const AuthContext = createContext<AuthContextType>({
   authLoading: true,
   profileLoading: false,
   signInWithGoogle: async () => {},
+  signInWithEmail: async () => {},
+  signUpWithEmail: async () => {},
   logout: async () => {},
 });
 
@@ -106,7 +112,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
-      alert("Error: " + error.message);
+      throw error;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const signInWithEmail = async (email: string, pass: string) => {
+    try {
+      setAuthLoading(true);
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (error: any) {
+      console.error("Error al iniciar sesión con email:", error);
+      throw error;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const signUpWithEmail = async (email: string, pass: string, name: string) => {
+    try {
+      setAuthLoading(true);
+      const result = await createUserWithEmailAndPassword(auth, email, pass);
+      
+      // The onAuthStateChanged will handle profile creation, 
+      // but we might want to set the name immediately if it's a new profile.
+      // However, our current onAuthStateChanged already creates a profile if missing.
+      // We'll let it use the email as displayName if user.displayName is null.
+    } catch (error: any) {
+      console.error("Error al registrarse con email:", error);
+      throw error;
+    } finally {
       setAuthLoading(false);
     }
   };
@@ -130,6 +166,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authLoading, 
         profileLoading, 
         signInWithGoogle, 
+        signInWithEmail,
+        signUpWithEmail,
         logout 
       }}
     >

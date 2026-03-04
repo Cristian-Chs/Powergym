@@ -4,7 +4,7 @@ export async function getBcvRate() {
   try {
     const url = "https://www.bcv.org.ve";
     
-    console.log("Fetching BCV rate...");
+    console.log("Fetching BCV Euro rate...");
 
     // Function to fetch HTML using https module to ignore SSL errors (verify=False equivalent)
     const fetchHtml = (): Promise<string> => {
@@ -45,31 +45,32 @@ export async function getBcvRate() {
     }
 
     if (html) {
-      // Pattern 1: Search for "USD" label specifically followed by a value in a strong tag
-      // This is the most reliable pattern for the dollar rate
-      const usdMatch = html.match(/id=['"]dolar['"][\s\S]*?<strong>\s*([\d,.]+)\s*<\/strong>/);
-      if (usdMatch && usdMatch[1]) {
-        console.log("BCV Rate found with Pattern 1 (USD ID):", usdMatch[1]);
-        return usdMatch[1].trim().replace(',', '.');
+      // Pattern 1: Search for "EURO" label specifically followed by a value in a strong tag
+      // This matches the structure: <div id="euro">...<strong> 45,1234 </strong>
+      const euroMatch = html.match(/id=['"]euro['"][\s\S]*?<strong>\s*([\d,.]+)\s*<\/strong>/);
+      if (euroMatch && euroMatch[1]) {
+        console.log("BCV Rate found with Pattern 1 (EURO ID):", euroMatch[1]);
+        return euroMatch[1].trim().replace(',', '.');
       }
 
-      // Pattern 2: Specific class from user's script (backup)
+      // Pattern 2: Specific class (backup) - usually the same structure
       const rateMatch = html.match(/<div[^>]*class=['"]col-sm-6 col-xs-6 centrado['"][^>]*>[\s\S]*?<strong>\s*([\d,.]+)\s*<\/strong>/);
-      if (rateMatch && rateMatch[1]) {
-        console.log("BCV Rate found with Pattern 2 (Legacy Centrado):", rateMatch[1]);
-        return rateMatch[1].trim().replace(',', '.');
+      // Note: Pattern 2 might return Dollar if it's the first one, so Pattern 1 is preferred
+      if (rateMatch && rateMatch[1] && html.includes('id="euro"')) {
+         // Only use Pattern 2 if we can't find it with Pattern 1 but we know Euro is there
+         // Actually, let's stick to Pattern 1 as it's more specific to Euro
       }
     }
 
     console.log("BCV direct scraping failed or no HTML. Attempting fallback API...");
     
-    // Fallback: Using an unofficial but stable BCV API if the main site fails
+    // Fallback: Using DolarAPI's Euro endpoint
     try {
-      const fallbackResponse = await fetch("https://ve.dolarapi.com/v1/dolares/bcv", { next: { revalidate: 3600 } });
+      const fallbackResponse = await fetch("https://ve.dolarapi.com/v1/euros/oficial", { next: { revalidate: 3600 } });
       if (fallbackResponse.ok) {
         const data = await fallbackResponse.json();
         if (data.promedio) {
-          console.log("BCV Rate found via Fallback API:", data.promedio);
+          console.log("BCV euro Rate found via Fallback API:", data.promedio);
           return data.promedio.toString();
         }
       }
@@ -77,9 +78,9 @@ export async function getBcvRate() {
       console.error("Fallback API call failed:", e);
     }
 
-    throw new Error("Could not find rate in BCV HTML or Fallback API");
+    throw new Error("Could not find Euro rate in BCV HTML or Fallback API");
   } catch (error) {
-    console.error("Error in getBcvRate:", error);
+    console.error("Error in getBcvRate (Euro):", error);
     return null;
   }
 }
