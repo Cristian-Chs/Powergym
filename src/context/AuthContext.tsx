@@ -20,6 +20,7 @@ import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { auth, googleProvider, db } from "@/lib/firebase";
 import { UserProfile } from "@/types";
 import { addMonths } from "date-fns";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
   firebaseUser: User | null;
@@ -48,6 +49,7 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -151,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     document.cookie = "session=;path=/;max-age=0;SameSite=Lax";
     setUserProfile(null);
     setFirebaseUser(null);
+    router.push("/login");
   };
 
   // Para compatibilidad hacia atrás, 'loading' refleja el estado inicial crítico

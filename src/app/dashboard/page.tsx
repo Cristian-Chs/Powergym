@@ -1,13 +1,21 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import ExpirationBanner from "@/components/ExpirationBanner";
 import PaymentCalendar from "@/components/PaymentCalendar";
 import PlanViewer from "@/components/PlanViewer";
-import BcvRate from "@/components/BcvRate";
 
 export default function ClientDashboard() {
   const { userProfile, authLoading, profileLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (userProfile && (!userProfile.planId || userProfile.status !== "active")) {
+      router.replace("/dashboard/onboarding");
+    }
+  }, [userProfile, router]);
 
   if (authLoading || profileLoading) {
     return (
@@ -33,7 +41,6 @@ export default function ClientDashboard() {
             Aquí tienes un resumen de tu actividad y plan actual.
           </p>
         </div>
-        <BcvRate />
       </div>
 
       {/* Expiration + Calendar row */}

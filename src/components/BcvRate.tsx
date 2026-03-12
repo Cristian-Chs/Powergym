@@ -49,7 +49,7 @@ export default function BcvRate() {
   return (
     <div className="flex flex-col items-end text-right">
       <h1 className="text-2xl font-black tracking-tighter text-white sm:text-3xl">
-        <span className="text-brand-lime">Bs.</span> {rate}
+        <span className="text-brand-primary">Bs.</span> {rate}
       </h1>
       <p className="text-[10px] font-medium uppercase tracking-widest text-gray-500">
         Tasa del día (BCV)

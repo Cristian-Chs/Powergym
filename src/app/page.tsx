@@ -11,11 +11,12 @@ export default function HomePage() {
   useEffect(() => {
     // Esperamos a que ambos terminen para decidir la ruta inicial
     if (authLoading || profileLoading) return;
-    
     if (!userProfile) {
       router.replace("/login");
     } else if (userProfile.role === "admin") {
       router.replace("/admin");
+    } else if (!userProfile.planId || userProfile.status !== "active") {
+      router.replace("/dashboard/onboarding");
     } else {
       router.replace("/dashboard");
     }

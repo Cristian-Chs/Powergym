@@ -20,7 +20,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
           ? "border-red-500/40 bg-red-950/30"
           : isUrgent
             ? "border-amber-500/40 bg-amber-950/30"
-            : "border-brand-mint/20 bg-surface-700"
+            : "border-brand-primary/20 bg-surface-700"
       }`}
     >
       {/* Glow accent */}
@@ -30,7 +30,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
             ? "bg-red-500/20"
             : isUrgent
               ? "bg-amber-500/20"
-              : "bg-brand-mint/10"
+              : "bg-brand-primary/10"
         }`}
       />
 
@@ -63,10 +63,10 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
             </>
           ) : (
             <>
-              <p className="mt-1 text-2xl font-bold text-brand-mint">
-                {daysLeft} día{daysLeft !== 1 ? "s" : ""} restante{daysLeft !== 1 ? "s" : ""}
+              <p className="mt-1 text-2xl font-bold text-brand-primary">
+                {daysLeft} días restantes
               </p>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-brand-primary/70">
                 Próximo pago:{" "}
                 {format(subscriptionEnd, "d 'de' MMMM, yyyy", { locale: es })}
               </p>
@@ -76,12 +76,12 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
 
         {/* Icon */}
         <div
-          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-colors ${
             isExpired
               ? "bg-red-500/20 text-red-400"
               : isUrgent
                 ? "bg-amber-500/20 text-amber-400"
-                : "bg-brand-mint/10 text-brand-mint"
+                : "bg-brand-primary/10 text-brand-primary"
           }`}
         >
           <svg
