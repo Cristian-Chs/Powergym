@@ -6,9 +6,8 @@ import { AuthProvider } from "@/context/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GymPro — Gestión de Gimnasios",
-  description:
-    "Plataforma profesional para la gestión de suscripciones, planes de entrenamiento y pagos de tu gimnasio.",
+  title: "PowerGym — Gestión de Gimnasios",
+  description: "Plataforma administrativa para gimnasios",
 };
 
 export default function RootLayout({

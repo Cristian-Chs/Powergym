@@ -54,7 +54,7 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
           }}
           modifiersStyles={{
             payment: {
-              backgroundColor: "#a3e635",
+              backgroundColor: "#48C774",
               color: "#0a0a0f",
               fontWeight: 700,
               borderRadius: "9999px",
@@ -65,15 +65,15 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
               textDecoration: "underline"
             },
             event: {
-              color: "#fbbf24",
+              color: "#F26722",
               fontWeight: 800
             }
           }}
           styles={{
-            caption: { color: "#a3e635" },
+            caption: { color: "#f97316" },
             head_cell: { color: "#6b7280", fontSize: "0.75rem" },
             day: { color: "#d1d5db" },
-            nav_button: { color: "#a3e635" },
+            nav_button: { color: "#f97316" },
           }}
           className="!bg-transparent"
         />
@@ -84,7 +84,7 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
         <div className="absolute inset-x-0 bottom-0 z-20 mx-4 mb-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="rounded-xl border border-white/10 bg-surface-800 p-4 shadow-2xl backdrop-blur-xl">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[10px] font-bold text-brand-lime uppercase tracking-widest">
+              <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest">
                 {format(selectedDay, "dd 'de' MMMM", { locale: es })}
               </span>
               <button 
@@ -115,13 +115,13 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
 
       <div className="mt-4 flex flex-wrap justify-center gap-4 border-t border-white/5 pt-4">
         <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-          <span className="h-2 w-2 rounded-full bg-brand-lime" /> Pago
+          <span className="h-2 w-2 rounded-full bg-brand-mint" /> Pago
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
           <span className="h-2 w-2 rounded-full bg-red-400" /> Cerrado
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-          <span className="h-2 w-2 rounded-full bg-yellow-400" /> Evento
+          <span className="h-2 w-2 rounded-full bg-brand-primary" /> Evento
         </div>
       </div>
     </div>

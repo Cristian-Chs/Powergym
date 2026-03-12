@@ -13,6 +13,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  updateProfile,
   User,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
@@ -28,7 +29,7 @@ interface AuthContextType {
   profileLoading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
-  signUpWithEmail: (email: string, pass: string, name: string) => Promise<void>;
+  signUpWithEmail: (email: string, pass: string, name: string, phone?: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -130,15 +131,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUpWithEmail = async (email: string, pass: string, name: string) => {
+  const signUpWithEmail = async (email: string, pass: string, name: string, phone?: string) => {
     try {
       setAuthLoading(true);
       const result = await createUserWithEmailAndPassword(auth, email, pass);
-      
-      // The onAuthStateChanged will handle profile creation, 
-      // but we might want to set the name immediately if it's a new profile.
-      // However, our current onAuthStateChanged already creates a profile if missing.
-      // We'll let it use the email as displayName if user.displayName is null.
+      // Set the display name immediately so Firestore profile creation picks it up
+      await updateProfile(result.user, { displayName: name });
+      // The onAuthStateChanged listener will create the Firestore profile
     } catch (error: any) {
       console.error("Error al registrarse con email:", error);
       throw error;

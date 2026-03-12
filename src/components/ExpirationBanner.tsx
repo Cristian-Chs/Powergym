@@ -20,7 +20,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
           ? "border-red-500/40 bg-red-950/30"
           : isUrgent
             ? "border-amber-500/40 bg-amber-950/30"
-            : "border-brand-lime/20 bg-surface-700"
+            : "border-brand-mint/20 bg-surface-700"
       }`}
     >
       {/* Glow accent */}
@@ -30,7 +30,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
             ? "bg-red-500/20"
             : isUrgent
               ? "bg-amber-500/20"
-              : "bg-brand-lime/10"
+              : "bg-brand-mint/10"
         }`}
       />
 
@@ -63,7 +63,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
             </>
           ) : (
             <>
-              <p className="mt-1 text-2xl font-bold text-brand-lime">
+              <p className="mt-1 text-2xl font-bold text-brand-mint">
                 {daysLeft} día{daysLeft !== 1 ? "s" : ""} restante{daysLeft !== 1 ? "s" : ""}
               </p>
               <p className="mt-1 text-sm text-gray-400">
@@ -81,7 +81,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
               ? "bg-red-500/20 text-red-400"
               : isUrgent
                 ? "bg-amber-500/20 text-amber-400"
-                : "bg-brand-lime/10 text-brand-lime"
+                : "bg-brand-mint/10 text-brand-mint"
           }`}
         >
           <svg

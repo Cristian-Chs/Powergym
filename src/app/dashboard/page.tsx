@@ -5,7 +5,6 @@ import ExpirationBanner from "@/components/ExpirationBanner";
 import PaymentCalendar from "@/components/PaymentCalendar";
 import PlanViewer from "@/components/PlanViewer";
 import BcvRate from "@/components/BcvRate";
-import PlanSelector from "@/components/PlanSelector";
 
 export default function ClientDashboard() {
   const { userProfile, authLoading, profileLoading } = useAuth();
@@ -51,10 +50,6 @@ export default function ClientDashboard() {
         <PlanViewer planId={userProfile.planId} />
       </section>
 
-      {/* Membership Tiers Selector */}
-      <section className="pt-8">
-        <PlanSelector userProfile={userProfile} />
-      </section>
     </div>
   );
 }

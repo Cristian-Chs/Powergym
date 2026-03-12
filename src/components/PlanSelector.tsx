@@ -124,7 +124,7 @@ export default function PlanSelector({ userProfile }: Props) {
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className={`grid gap-4 sm:grid-cols-3 ${hasPendingPayment ? 'opacity-50 pointer-events-none' : ''}`}>
         {TIERS.map((tier) => {
           const isSelected = userProfile.membershipTier === tier.id;
           return (
@@ -135,7 +135,7 @@ export default function PlanSelector({ userProfile }: Props) {
               }`}
             >
               {tier.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-lime px-3 py-1 text-[10px] font-bold text-surface-900 uppercase">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-mint px-3 py-1 text-[10px] font-bold text-surface-900 uppercase">
                   Popular
                 </span>
               )}
@@ -151,7 +151,7 @@ export default function PlanSelector({ userProfile }: Props) {
               <ul className="mb-8 flex-1 space-y-2">
                 {tier.features.map((feat, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs text-gray-400">
-                    <svg className="h-3 w-3 text-brand-lime" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-3 w-3 text-brand-mint" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     {feat}
@@ -161,8 +161,8 @@ export default function PlanSelector({ userProfile }: Props) {
 
               <button
                 onClick={() => handleSelect(tier)}
-                disabled={loading !== null}
-                className={`w-full rounded-xl py-2.5 text-xs font-bold transition-all ${
+                disabled={loading !== null || hasPendingPayment}
+                className={`w-full rounded-xl py-2.5 text-xs font-bold transition-all disabled:opacity-50 ${
                   isSelected
                     ? "bg-brand-lime text-surface-900 shadow-glow shadow-brand-lime/20"
                     : "bg-surface-700 text-gray-400 hover:text-white border border-white/5 hover:border-white/10"
