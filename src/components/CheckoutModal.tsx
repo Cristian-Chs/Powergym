@@ -13,9 +13,12 @@ interface Props {
     price: number;
     planId: string;
   };
+  userProfile: UserProfile;
+}
+
 export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Props) {
   const [loading, setLoading] = useState(false);
-  const [bcvRate, setBcvRate] = useState<number | null>(null);
+  const [bcvRate, setBcvRate] = useState(null as number | null);
   const [formData, setFormData] = useState({
     phone: "",
     reference: "",
