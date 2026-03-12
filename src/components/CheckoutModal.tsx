@@ -13,19 +13,10 @@ interface Props {
     price: number;
     planId: string;
   };
-  userProfile: UserProfile;
-}
-
-type PaymentMethod = "card" | "pagomovil";
-
 export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Props) {
   const [loading, setLoading] = useState(false);
   const [bcvRate, setBcvRate] = useState<number | null>(null);
-  const [method, setMethod] = useState<PaymentMethod>("pagomovil");
   const [formData, setFormData] = useState({
-    cardNumber: "",
-    expiry: "",
-    cvc: "",
     phone: "",
     reference: "",
   });
@@ -47,11 +38,9 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
     e.preventDefault();
     setLoading(true);
     try {
-      const details = method === "card" 
-        ? `Tarjeta: ${formData.cardNumber.slice(-4)}` 
-        : `Ref: ${formData.reference}, Tel: ${formData.phone}`;
+      const details = `Ref: ${formData.reference}, Tel: ${formData.phone}`;
         
-      await processPayment(userProfile, tier.id, tier.price, method, details, tier.planId);
+      await processPayment(userProfile, tier.id, tier.price, "pagomovil", details, tier.planId);
       alert("¡Gracias! Tu pago ha sido registrado y está en espera de verificación por el administrador.");
       onClose();
       window.location.reload();
@@ -97,104 +86,44 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
             </div>
           </div>
 
-          {/* Method Selector */}
-          <div className="mb-6 flex gap-2 rounded-xl bg-surface-900 p-1 border border-white/5">
-            <button
-              onClick={() => setMethod("pagomovil")}
-              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${
-                method === "pagomovil" ? "bg-surface-700 text-white shadow-lg" : "text-gray-500 hover:text-gray-300"
-              }`}
-            >
-              Pago Móvil
-            </button>
-            <button
-              onClick={() => setMethod("card")}
-              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${
-                method === "card" ? "bg-surface-700 text-white shadow-lg" : "text-gray-500 hover:text-gray-300"
-              }`}
-            >
-              Tarjeta
-            </button>
-          </div>
-
-          <form onSubmit={handlePay} className="space-y-4">
-            {method === "pagomovil" ? (
-              <div className="space-y-4 animate-slide-up">
-                {/* Merchant Data */}
-                <div className="rounded-xl border border-brand-primary/20 bg-brand-primary/5 p-4">
-                  <p className="mb-2 text-[10px] font-black uppercase text-brand-primary tracking-widest">Datos del Comercio</p>
-                  <div className="space-y-1 text-sm">
-                    <p className="flex justify-between"><span className="text-gray-500">Banco:</span> <span className="text-gray-200 font-medium">Banesco</span></p>
-                    <p className="flex justify-between"><span className="text-gray-500">Teléfono:</span> <span className="text-gray-200 font-medium">04246188448</span></p>
-                    <p className="flex justify-between"><span className="text-gray-500">C.I:</span> <span className="text-gray-200 font-medium">V28735492</span></p>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Tu Teléfono (Emisor)</label>
-                  <input 
-                    required
-                    placeholder="0414..."
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Número de Referencia (4 últimos dígitos)</label>
-                  <input 
-                    required
-                    placeholder="1234"
-                    value={formData.reference}
-                    onChange={(e) => setFormData({...formData, reference: e.target.value})}
-                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
-                  />
-                </div>
+          <form onSubmit={handlePay} className="space-y-4 animate-slide-up">
+            {/* Merchant Data */}
+            <div className="rounded-xl border border-brand-primary/20 bg-brand-primary/5 p-4">
+              <p className="mb-2 text-[10px] font-black uppercase text-brand-primary tracking-widest">Datos del Comercio</p>
+              <div className="space-y-1 text-sm">
+                <p className="flex justify-between"><span className="text-gray-500">Banco:</span> <span className="text-gray-200 font-medium">Banesco</span></p>
+                <p className="flex justify-between"><span className="text-gray-500">Teléfono:</span> <span className="text-gray-200 font-medium">04246188448</span></p>
+                <p className="flex justify-between"><span className="text-gray-500">C.I:</span> <span className="text-gray-200 font-medium">V28735492</span></p>
               </div>
-            ) : (
-              <div className="space-y-4 animate-slide-up">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Número de tarjeta</label>
-                  <input 
-                    required
-                    placeholder="4242 4242 4242 4242"
-                    value={formData.cardNumber}
-                    onChange={(e) => setFormData({...formData, cardNumber: e.target.value})}
-                    className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Expiración</label>
-                    <input 
-                      required
-                      placeholder="MM/AA"
-                      value={formData.expiry}
-                      onChange={(e) => setFormData({...formData, expiry: e.target.value})}
-                      className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">CVC</label>
-                    <input 
-                      required
-                      placeholder="123"
-                      value={formData.cvc}
-                      onChange={(e) => setFormData({...formData, cvc: e.target.value})}
-                      className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Tu Teléfono (Emisor)</label>
+              <input 
+                required
+                placeholder="0414..."
+                value={formData.phone}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, phone: e.target.value})}
+                className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Número de Referencia (4 últimos dígitos)</label>
+              <input 
+                required
+                placeholder="1234"
+                value={formData.reference}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, reference: e.target.value})}
+                className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
+              />
+            </div>
 
             <button
               type="submit"
               disabled={loading}
               className="w-full mt-4 rounded-xl bg-brand-primary py-4 text-sm font-black text-white shadow-lg shadow-brand-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
             >
-              {loading ? "Procesando..." : method === "pagomovil" ? "Confirmar Pago Móvil" : "Pagar con Tarjeta"}
+              {loading ? "Procesando..." : "Confirmar Pago Móvil"}
             </button>
             
             <p className="text-center text-[10px] text-gray-500 font-medium">

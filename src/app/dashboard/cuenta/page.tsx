@@ -7,20 +7,10 @@ import {
   updateEmail,
   reauthenticateWithCredential,
   EmailAuthProvider,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  PhoneAuthProvider,
   linkWithCredential,
 } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
-
-declare global {
-  interface Window {
-    recaptchaVerifier?: RecaptchaVerifier;
-    confirmationResult?: any;
-  }
-}
 
 export default function CuentaPage() {
   const { firebaseUser, userProfile } = useAuth();
@@ -28,7 +18,7 @@ export default function CuentaPage() {
   // ── Email update state ──────────────────────────────
   const [newEmail, setNewEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
-  const [emailStatus, setEmailStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const [emailStatus, setEmailStatus] = useState(null as { type: "success" | "error"; msg: string } | null);
   const [emailLoading, setEmailLoading] = useState(false);
 
   // ── Google Auth check ───────────────────────────────
@@ -37,7 +27,7 @@ export default function CuentaPage() {
 
   useEffect(() => {
     if (firebaseUser?.providerData) {
-      const hasPassword = firebaseUser.providerData.some(p => p.providerId === "password");
+      const hasPassword = firebaseUser.providerData.some((p: any) => p.providerId === "password");
       setIsGoogleOnly(!hasPassword);
     }
   }, [firebaseUser]);
@@ -45,13 +35,8 @@ export default function CuentaPage() {
   // ── Phone update state ──────────────────────────────
   const [countryCode, setCountryCode] = useState("+58");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
-  const [phoneStep, setPhoneStep] = useState<"input" | "otp">("input");
-  const [phoneStatus, setPhoneStatus] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const [phoneStatus, setPhoneStatus] = useState(null as { type: "success" | "error"; msg: string } | null);
   const [phoneLoading, setPhoneLoading] = useState(false);
-  const [recaptchaLoading, setRecaptchaLoading] = useState(false);
-
-  const recaptchaRef = useRef<HTMLDivElement>(null);
 
   // ── Email update handler ───────────────────────────
   const handleEmailUpdate = async (e: React.FormEvent) => {
@@ -101,66 +86,21 @@ export default function CuentaPage() {
     }
   };
 
-  // ── Phone: send OTP ───────────────────────────────
-  const handleSendOtp = async (e: React.FormEvent) => {
+  // ── Phone: Direct Upload ─────────────────────────
+  const handleSavePhone = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!firebaseUser) return;
     setPhoneLoading(true);
     setPhoneStatus(null);
     try {
-      setRecaptchaLoading(true);
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaRef.current!, {
-          size: "invisible",
-        });
+      if (!phoneNumber.trim()) {
+        throw new Error("Agrega un número de teléfono.");
       }
       const fullPhone = `${countryCode}${phoneNumber.replace(/\s/g, "")}`;
-      const confirmation = await signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifier);
-      window.confirmationResult = confirmation;
-      setPhoneStep("otp");
-      setPhoneStatus({ type: "success", msg: "Código enviado. Revisa tu teléfono." });
+      await updateDoc(doc(db, "users", firebaseUser.uid), { phoneNumber: fullPhone });
+      setPhoneStatus({ type: "success", msg: "Teléfono actualizado correctamente." });
     } catch (err: any) {
-      const msg =
-        err.code === "auth/invalid-phone-number" ? "Número de teléfono inválido." :
-        err.code === "auth/too-many-requests" ? "Demasiados intentos. Espera antes de reintentar." :
-        err.message || "Error al enviar el código.";
-      setPhoneStatus({ type: "error", msg });
-      window.recaptchaVerifier = undefined;
-    } finally {
-      setPhoneLoading(false);
-      setRecaptchaLoading(false);
-    }
-  };
-
-  // ── Phone: verify OTP ────────────────────────────
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!firebaseUser || !window.confirmationResult) return;
-    setPhoneLoading(true);
-    setPhoneStatus(null);
-    try {
-      const result = await window.confirmationResult.confirm(otp);
-      const phoneCredential = PhoneAuthProvider.credential(
-        window.confirmationResult.verificationId,
-        otp
-      );
-      await linkWithCredential(firebaseUser, phoneCredential);
-
-      // Sync to Firestore
-      const fullPhone = `${countryCode}${phoneNumber.replace(/\s/g, "")}`;
-      await updateDoc(doc(db, "users", firebaseUser.uid), { phoneNumber: fullPhone }).catch(console.error);
-
-      setPhoneStatus({ type: "success", msg: "Teléfono vinculado correctamente." });
-      setPhoneStep("input");
-      setPhoneNumber("");
-      setOtp("");
-    } catch (err: any) {
-      const msg =
-        err.code === "auth/invalid-verification-code" ? "Código incorrecto." :
-        err.code === "auth/code-expired" ? "El código expiró. Solicita uno nuevo." :
-        err.code === "auth/provider-already-linked" ? "Este número ya está vinculado a una cuenta." :
-        err.message || "Error al verificar el código.";
-      setPhoneStatus({ type: "error", msg });
+      setPhoneStatus({ type: "error", msg: err.message || "Error al actualizar el teléfono." });
     } finally {
       setPhoneLoading(false);
     }
@@ -216,7 +156,7 @@ export default function CuentaPage() {
                   required
                   placeholder="Mínimo 6 caracteres"
                   value={newAuthPassword}
-                  onChange={(e) => setNewAuthPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewAuthPassword(e.target.value)}
                   className="w-full rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
                 />
               </div>
@@ -250,7 +190,7 @@ export default function CuentaPage() {
                   required
                   placeholder="nuevo@email.com"
                   value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewEmail(e.target.value)}
                   className="w-full rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
                 />
               </div>
@@ -264,7 +204,7 @@ export default function CuentaPage() {
                   required
                   placeholder="••••••••"
                   value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentPassword(e.target.value)}
                   className="w-full rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
                 />
               </div>
@@ -300,15 +240,14 @@ export default function CuentaPage() {
             </div>
             <div>
               <h2 className="text-base font-bold text-gray-100">Cambiar Número de Teléfono</h2>
-              <p className="text-xs text-gray-500">Se verificará con un código SMS (OTP).</p>
+              <p className="text-xs text-gray-500">
+                Tu número telefónico nos ayuda a contactarte en caso de emergencia.
+                <br /><br /> Actual: <span className="text-gray-400">{userProfile.phoneNumber || "No registrado"}</span>
+              </p>
             </div>
           </div>
 
-          {/* Invisible recaptcha container */}
-          <div ref={recaptchaRef} id="recaptcha-phone-settings" />
-
-          {phoneStep === "input" ? (
-            <form onSubmit={handleSendOtp} className="space-y-4">
+            <form onSubmit={handleSavePhone} className="space-y-4">
               <div className="space-y-1">
                 <label className="ml-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                   Número de Teléfono
@@ -316,7 +255,7 @@ export default function CuentaPage() {
                 <div className="flex gap-2">
                   <select
                     value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCountryCode(e.target.value)}
                     className="rounded-xl border border-white/5 bg-surface-900/50 px-3 py-3 text-sm text-white outline-none focus:border-brand-primary/50"
                   >
                     <option value="+58">🇻🇪 +58</option>
@@ -334,7 +273,7 @@ export default function CuentaPage() {
                     required
                     placeholder="4141234567"
                     value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)}
                     className="flex-1 rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
                   />
                 </div>
@@ -355,59 +294,9 @@ export default function CuentaPage() {
                 disabled={phoneLoading}
                 className="w-full rounded-xl bg-brand-primary py-3 text-sm font-bold text-white shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-wait disabled:opacity-50"
               >
-                {phoneLoading ? "Enviando…" : "Enviar Código SMS"}
+                {phoneLoading ? "Guardando…" : "Guardar Número"}
               </button>
             </form>
-          ) : (
-            <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="rounded-xl border border-brand-mint/20 bg-brand-mint/5 p-3 text-xs text-brand-mint">
-                Código enviado a {countryCode} {phoneNumber}
-              </div>
-
-              <div className="space-y-1">
-                <label className="ml-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                  Código de Verificación OTP
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  required
-                  maxLength={6}
-                  placeholder="123456"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-center text-lg font-black tracking-[0.5em] text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
-                />
-              </div>
-
-              {phoneStatus && (
-                <div className={`rounded-xl border p-3 text-xs font-semibold ${
-                  phoneStatus.type === "success"
-                    ? "border-brand-mint/30 bg-brand-mint/10 text-brand-mint"
-                    : "border-red-500/20 bg-red-500/10 text-red-400"
-                }`}>
-                  {phoneStatus.msg}
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => { setPhoneStep("input"); setPhoneStatus(null); setOtp(""); }}
-                  className="flex-1 rounded-xl border border-white/10 py-3 text-sm font-bold text-gray-400 transition-all hover:border-white/20 hover:text-gray-200"
-                >
-                  Cambiar número
-                </button>
-                <button
-                  type="submit"
-                  disabled={phoneLoading || otp.length < 6}
-                  className="flex-1 rounded-xl bg-brand-primary py-3 text-sm font-bold text-white shadow-glow transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-wait disabled:opacity-50"
-                >
-                  {phoneLoading ? "Verificando…" : "Verificar"}
-                </button>
-              </div>
-            </form>
-          )}
         </div>
       </div>
     </div>

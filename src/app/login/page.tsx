@@ -3,24 +3,11 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  PhoneAuthProvider,
-  linkWithCredential,
-  sendPasswordResetEmail,
-} from "firebase/auth";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 
-declare global {
-  interface Window {
-    recaptchaVerifierLogin?: RecaptchaVerifier;
-    registerConfirmation?: any;
-  }
-}
-
-type RegisterStep = "form" | "otp" | "recover";
+type RegisterStep = "form" | "recover";
 
 export default function LoginPage() {
   const { userProfile, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, firebaseUser } = useAuth();
@@ -32,13 +19,9 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [countryCode, setCountryCode] = useState("+58");
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
   const [registerStep, setRegisterStep] = useState<RegisterStep>("form");
   const [error, setError] = useState<string | null>(null);
   const [formLoading, setFormLoading] = useState(false);
-  const [recaptchaLoading, setRecaptchaLoading] = useState(false);
-
-  const recaptchaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && userProfile) {
@@ -64,7 +47,7 @@ export default function LoginPage() {
     }
   };
 
-  // ── Register Step 1: create account + send OTP ────
+  // ── Register (Email + Direct Phone Save) ─────────
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) { setError("Por favor ingresa tu nombre."); return; }
@@ -74,65 +57,19 @@ export default function LoginPage() {
       // 1. Create Firebase account (sets displayName via updateProfile inside signUpWithEmail)
       await signUpWithEmail(email, password, name);
 
-      // 2. Set up recaptcha and send OTP
-      setRecaptchaLoading(true);
-      if (!window.recaptchaVerifierLogin) {
-        window.recaptchaVerifierLogin = new RecaptchaVerifier(auth, recaptchaRef.current!, {
-          size: "invisible",
-        });
-      }
-      const fullPhone = `${countryCode}${phone.replace(/\s/g, "")}`;
-      const confirmation = await signInWithPhoneNumber(auth, fullPhone, window.recaptchaVerifierLogin);
-      window.registerConfirmation = confirmation;
-      setRegisterStep("otp");
-    } catch (err: any) {
-      setError(mapAuthError(err));
-      window.recaptchaVerifierLogin = undefined;
-    } finally {
-      setFormLoading(false);
-      setRecaptchaLoading(false);
-    }
-  };
-
-  // ── Register Step 2: verify OTP + link phone ─────
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!window.registerConfirmation) {
-      setError("No hay un código activo. Reinicia el registro.");
-      return;
-    }
-    setError(null);
-    setFormLoading(true);
-    try {
-      const phoneCredential = PhoneAuthProvider.credential(
-        window.registerConfirmation.verificationId,
-        otp
-      );
-      if (firebaseUser) {
-        await linkWithCredential(firebaseUser, phoneCredential);
-        // Sync phone to Firestore
+      // 2. Save phone directly to Firestore if user successfully created
+      const currentUser = auth.currentUser;
+      if (currentUser && phone.trim()) {
         const fullPhone = `${countryCode}${phone.replace(/\s/g, "")}`;
-        await updateDoc(doc(db, "users", firebaseUser.uid), { phoneNumber: fullPhone }).catch(console.error);
-      } else {
-        const result = await window.registerConfirmation.confirm(otp);
-        // Sync phone to Firestore if user exists
-        if (result.user) {
-           const fullPhone = `${countryCode}${phone.replace(/\s/g, "")}`;
-           await updateDoc(doc(db, "users", result.user.uid), { phoneNumber: fullPhone }).catch(console.error);
-        }
+        await updateDoc(doc(db, "users", currentUser.uid), { phoneNumber: fullPhone }).catch(console.error);
       }
-      // Redirect will be handled by the useEffect above
+      
+      // router.replace will be handled by useEffect 
     } catch (err: any) {
       setError(mapAuthError(err));
     } finally {
       setFormLoading(false);
     }
-  };
-
-  // ── Skip phone (optional) ──────────────────────
-  const handleSkipPhone = () => {
-    // User already created — just navigate
-    router.replace("/dashboard");
   };
 
   // ── Password Recovery ─────────────────────────
@@ -155,7 +92,6 @@ export default function LoginPage() {
     setIsLogin(login);
     setError(null);
     setRegisterStep("form");
-    setOtp("");
   };
 
   function mapAuthError(err: any): string {
@@ -180,9 +116,6 @@ export default function LoginPage() {
         <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-primary/5 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-[400px] w-[400px] translate-x-1/2 translate-y-1/2 rounded-full bg-brand-secondary/5 blur-3xl" />
       </div>
-
-      {/* Invisible recaptcha */}
-      <div ref={recaptchaRef} id="recaptcha-register" />
 
       <div className="relative w-full max-w-md animate-fade-in py-12">
         {/* Logo */}
@@ -275,7 +208,7 @@ export default function LoginPage() {
                 <div className="flex gap-2">
                   <select
                     value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCountryCode(e.target.value)}
                     className="rounded-xl border border-white/5 bg-surface-900/50 px-3 py-3 text-sm text-white outline-none focus:border-brand-primary/50"
                   >
                     <option value="+58">🇻🇪 +58</option>
@@ -293,66 +226,19 @@ export default function LoginPage() {
                     required
                     placeholder="4141234567"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
                     className="flex-1 rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
                   />
                 </div>
               </div>
 
               {error && <ErrorBox msg={error} />}
-              {recaptchaLoading && (
-                <div className="rounded-xl border border-brand-primary/20 bg-brand-primary/5 p-3 text-center text-[10px] font-semibold text-brand-primary">
-                  Verificando seguridad anti-spam de Google... espere.
-                </div>
-              )}
-              <SubmitButton loading={formLoading || recaptchaLoading} label="Crear Cuenta y Enviar Código" />
+              <SubmitButton loading={formLoading} label="Crear Cuenta" />
             </form>
           )}
 
-          {/* ── Register: Step 2 – OTP ───────────── */}
-          {!isLogin && registerStep === "otp" && (
-            <div className="space-y-5 animate-fade-in">
-              <div className="rounded-xl border border-brand-mint/20 bg-brand-mint/5 p-4 text-center">
-                <p className="text-xs font-bold text-brand-mint">Código enviado por SMS</p>
-                <p className="mt-1 text-[10px] text-brand-mint/70">
-                  Revisa el número {countryCode} {phone}
-                </p>
-              </div>
-
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="ml-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">
-                    Código de Verificación
-                  </label>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    required
-                    maxLength={6}
-                    placeholder="123456"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="w-full rounded-xl border border-white/5 bg-surface-900/50 px-4 py-4 text-center text-2xl font-black tracking-[0.6em] text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
-                  />
-                </div>
-
-                {error && <ErrorBox msg={error} />}
-
-                <SubmitButton loading={formLoading} label="Verificar y Entrar" disabled={otp.length < 6} />
-              </form>
-
-              <button
-                type="button"
-                onClick={handleSkipPhone}
-                className="w-full text-center text-xs font-medium text-gray-500 transition-colors hover:text-gray-300"
-              >
-                Omitir verificación por ahora →
-              </button>
-            </div>
-          )}
-
           {/* ── Divider + Google ──────────────────── */}
-          {!(registerStep === "otp") && (
+          {true && (
             <>
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">
@@ -403,7 +289,7 @@ function Field({
         required={required ?? true}
         placeholder={placeholder}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         className="w-full rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
       />
     </div>
