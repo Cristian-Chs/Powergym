@@ -14,6 +14,7 @@ export interface UserProfile {
   cancelAtEnd?: boolean;
   createdAt: Timestamp;
   phoneNumber?: string;
+  phone?: string; // Alias for compatibility
   customExercises?: ExerciseDay[];
   customDiet?: DietDay[];
 }
@@ -31,6 +32,9 @@ export interface Payment {
   tier?: string;
   planId?: string;
   receiptUrl?: string;
+  proofUrl?: string;
+  refNumber?: string;
+  createdAt?: Timestamp;
 }
 
 // ─── Plan ─────────────────────────────────────────────

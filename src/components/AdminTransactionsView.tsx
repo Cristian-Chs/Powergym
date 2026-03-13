@@ -13,6 +13,8 @@ export default function AdminTransactionsView() {
   const [expiredUsers, setExpiredUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [selectedTx, setSelectedTx] = useState<Payment | any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [firstDoc, setFirstDoc] = useState<any>(null);
   
@@ -68,15 +70,16 @@ export default function AdminTransactionsView() {
       fetchTransactions('next');
     }
   };
-  const filteredTransactions = transactions.filter(t => 
+
+  const filteredTransactions = transactions.filter((t: Payment) => 
     t.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.refNumber?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
   const currentTransactions = filteredTransactions.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
   );
 
   const notifyWhatsApp = (phone: string, name: string) => {
@@ -104,7 +107,7 @@ export default function AdminTransactionsView() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {expiredUsers.map(user => (
+          {expiredUsers.map((user: UserProfile) => (
             <div key={user.uid} className="flex items-center justify-between rounded-xl bg-surface-800 p-4 border border-white/5 transition-all hover:border-red-500/30">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 overflow-hidden rounded-full border border-white/10 bg-surface-900">
@@ -136,7 +139,7 @@ export default function AdminTransactionsView() {
               type="text" 
               placeholder="Buscar por usuario o referencia..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="w-full rounded-xl bg-surface-900 border border-white/10 pl-10 pr-4 py-2.5 text-xs text-white outline-none focus:border-brand-primary/50 transition-all placeholder:text-gray-700 font-bold"
             />
           </div>
@@ -152,14 +155,14 @@ export default function AdminTransactionsView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {currentTransactions.map((tx) => (
+              {currentTransactions.map((tx: Payment) => (
                 <tr 
                   key={tx.id} 
                   className="group transition-colors hover:bg-white/[0.02] cursor-pointer"
                   onClick={() => setSelectedTx(tx)}
                 >
                   <td className="px-6 py-4 text-[11px] font-medium text-gray-400 whitespace-nowrap">
-                    {format(tx.createdAt.toDate(), "dd/MM/yyyy HH:mm")}
+                    {tx.createdAt ? format(tx.createdAt.toDate(), "dd/MM/yyyy HH:mm") : '---'}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -202,15 +205,15 @@ export default function AdminTransactionsView() {
           </p>
           <div className="flex gap-2">
             <button 
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
+              disabled={page === 1}
+              onClick={() => setPage((prev: number) => prev - 1)}
               className="flex items-center gap-1 rounded-lg border border-white/5 bg-surface-800 px-3 py-2 text-[10px] font-black uppercase text-gray-400 transition-all hover:text-white disabled:opacity-30"
             >
               <ChevronLeft size={14} /> Anterior
             </button>
             <button 
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={page === totalPages}
+              onClick={() => setPage((prev: number) => prev + 1)}
               className="flex items-center gap-1 rounded-lg border border-white/5 bg-surface-800 px-3 py-2 text-[10px] font-black uppercase text-gray-400 transition-all hover:text-white disabled:opacity-30"
             >
               Siguiente <ChevronRight size={14} />
@@ -227,8 +230,13 @@ export default function AdminTransactionsView() {
             <div className="flex flex-col md:flex-row h-full max-h-[90vh]">
               {/* Image Column */}
               <div className="w-full md:w-1/2 bg-black/40 p-1 flex items-center justify-center min-h-[300px]">
-                {selectedTx.proofUrl ? (
-                  <img src={selectedTx.proofUrl} alt="Comprobante" className="max-h-full max-w-full object-contain cursor-zoom-in" onClick={() => window.open(selectedTx.proofUrl, '_blank')} />
+                {selectedTx.receiptUrl || selectedTx.proofUrl ? (
+                  <img 
+                    src={selectedTx.receiptUrl || selectedTx.proofUrl} 
+                    alt="Comprobante" 
+                    className="max-h-full max-w-full object-contain cursor-zoom-in" 
+                    onClick={() => window.open(selectedTx.receiptUrl || selectedTx.proofUrl, '_blank')} 
+                  />
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-gray-600">
                     <AlertCircle size={48} />
@@ -277,7 +285,9 @@ export default function AdminTransactionsView() {
                       </div>
                       <div>
                         <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Fecha Registro</p>
-                        <p className="text-[11px] font-bold text-white mt-1">{format(selectedTx.createdAt.toDate(), "EEEE dd 'de' MMMM, yyyy", { locale: es })}</p>
+                        <p className="text-[11px] font-bold text-white mt-1">
+                          {selectedTx.createdAt ? format(selectedTx.createdAt.toDate(), "EEEE dd 'de' MMMM, yyyy", { locale: es }) : '---'}
+                        </p>
                       </div>
                     </div>
 

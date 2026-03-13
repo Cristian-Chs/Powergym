@@ -11,12 +11,13 @@ import AdminNotifications from "@/components/AdminNotifications";
 import AdminInicio from "@/components/AdminInicio";
 import AdminPlansView from "@/components/AdminPlansView";
 import AdminClientsView from "@/components/AdminClientsView";
+import AdminTransactionsView from "@/components/AdminTransactionsView";
 import { Bell } from "@/components/Icons";
 import { useAdmin } from "@/context/AdminContext";
 
 export default function AdminDashboard() {
-  const { activeView } = useAdmin();
-  const { userProfile, authLoading, profileLoading } = useAuth();
+  const { activeView } = useAdmin() as any;
+  const { userProfile, authLoading, profileLoading } = useAuth() as any;
   const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, verifying: 0 });
 
   useEffect(() => {
