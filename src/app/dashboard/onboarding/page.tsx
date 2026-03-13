@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import PlanSelector from "@/components/PlanSelector";
 import { useRouter } from "next/navigation";
+import { getMembershipStatus } from "@/lib/membership";
 
 export default function OnboardingPage() {
   const { userProfile, authLoading, profileLoading } = useAuth();
@@ -20,8 +21,10 @@ export default function OnboardingPage() {
 
   if (!userProfile) return null;
 
-  // Si ya tiene un plan activo, no debería estar aquí
-  if (userProfile.planId && userProfile.status === "active") {
+  const { isFullyExpired } = getMembershipStatus(userProfile.subscriptionEnd.toDate());
+
+  // Si ya tiene un plan activo y NO está totalmente expirado, no debería estar aquí
+  if (userProfile.planId && userProfile.status === "active" && !isFullyExpired) {
     router.replace("/dashboard");
     return null;
   }

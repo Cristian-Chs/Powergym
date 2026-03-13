@@ -113,7 +113,7 @@ export default function AdminNotifications() {
                         {formatDistanceToNow(n.date.toDate(), { addSuffix: true, locale: es })}
                       </span>
                       <button
-                        onClick={(e) => handleDelete(e, n.id)}
+                        onClick={(e: any) => handleDelete(e, n.id)}
                         className="p-1 text-gray-600 hover:text-red-400 transition-colors"
                         title="Eliminar"
                       >
@@ -144,7 +144,7 @@ export default function AdminNotifications() {
                         src={n.receiptUrl} 
                         alt="Capture de pago" 
                         className="w-full h-auto max-h-48 object-cover cursor-pointer transition-transform hover:scale-105"
-                        onClick={(e: React.MouseEvent) => {
+                        onClick={(e: any) => {
                           e.stopPropagation();
                           if (n.receiptUrl) window.open(n.receiptUrl, "_blank");
                         }}
@@ -155,14 +155,14 @@ export default function AdminNotifications() {
                   {(!n.paymentStatus || n.paymentStatus === "pending") && (
                     <div className="flex gap-2 mt-2">
                       <button
-                        onClick={(e) => handleApprove(e, n)}
+                        onClick={(e: any) => handleApprove(e, n)}
                         disabled={procId === n.id}
                         className="flex-1 rounded-lg bg-brand-lime py-1.5 text-[10px] font-bold text-surface-900 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                       >
                         {procId === n.id ? "..." : "Aprobar"}
                       </button>
                       <button
-                        onClick={(e) => handleReject(e, n)}
+                        onClick={(e: any) => handleReject(e, n)}
                         disabled={procId === n.id}
                         className="flex-1 rounded-lg bg-surface-600 py-1.5 text-[10px] font-bold text-gray-300 transition-all hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
                       >
@@ -180,7 +180,7 @@ export default function AdminNotifications() {
                         Pago Aprobado
                       </p>
                       <button
-                        onClick={(e) => {
+                        onClick={(e: any) => {
                           e.stopPropagation();
                           const message = encodeURIComponent(`Hola ${n.userName}, tu pago de $${n.amount} ha sido aprobado. ¡Gracias por tu reporte! Tu membresía ha sido actualizada.`);
                           window.open(`https://wa.me/?text=${message}`, "_blank");
@@ -201,7 +201,7 @@ export default function AdminNotifications() {
                         Pago Rechazado
                       </p>
                       <button
-                        onClick={(e) => {
+                        onClick={(e: any) => {
                           e.stopPropagation();
                           const message = encodeURIComponent(`Hola ${n.userName}, tu reporte de pago por $${n.amount} no ha podido ser validado. Por favor, verifica los datos y vuelve a intentarlo o contáctanos.`);
                           window.open(`https://wa.me/?text=${message}`, "_blank");
