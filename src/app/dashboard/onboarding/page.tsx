@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import PlanSelector from "@/components/PlanSelector";
 import { useRouter } from "next/navigation";
@@ -9,9 +9,22 @@ import { getMembershipStatus } from "@/lib/membership";
 export default function OnboardingPage() {
   const { userProfile, authLoading, profileLoading } = useAuth();
   const [showPlans, setShowPlans] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
 
-  if (authLoading || profileLoading) {
+  useEffect(() => {
+    if (userProfile && !authLoading && !profileLoading) {
+      const { isFullyExpired } = getMembershipStatus(userProfile.subscriptionEnd.toDate());
+      
+      // Si ya tiene un plan activo y NO está totalmente expirado, mandarlo al dashboard
+      if (userProfile.planId && userProfile.status === "active" && !isFullyExpired) {
+        setRedirecting(true);
+        router.replace("/dashboard");
+      }
+    }
+  }, [userProfile, authLoading, profileLoading, router]);
+
+  if (authLoading || profileLoading || redirecting) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-brand-primary border-t-transparent" />
@@ -20,14 +33,6 @@ export default function OnboardingPage() {
   }
 
   if (!userProfile) return null;
-
-  const { isFullyExpired } = getMembershipStatus(userProfile.subscriptionEnd.toDate());
-
-  // Si ya tiene un plan activo y NO está totalmente expirado, no debería estar aquí
-  if (userProfile.planId && userProfile.status === "active" && !isFullyExpired) {
-    router.replace("/dashboard");
-    return null;
-  }
 
   if (!showPlans) {
     return (

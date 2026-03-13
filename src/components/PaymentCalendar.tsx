@@ -17,9 +17,16 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
   const [selectedEvent, setSelectedEvent] = useState<GymEvent | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "gym_events"), (snap) => {
-      setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() } as GymEvent)));
-    });
+    const unsubscribe = onSnapshot(collection(db, "gym_events"), 
+      (snap) => {
+        setEvents(snap.docs.map(d => ({ id: d.id, ...d.data() } as GymEvent)));
+      },
+      (error) => {
+        console.error("Error al cargar eventos del calendario:", error);
+        // Error silencioso para el usuario para no romper la UI, 
+        // probablemente falta de permisos para usuarios no administradores
+      }
+    );
     return () => unsubscribe();
   }, []);
 

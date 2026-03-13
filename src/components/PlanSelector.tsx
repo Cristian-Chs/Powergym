@@ -50,13 +50,18 @@ export default function PlanSelector({ userProfile }: Props) {
 
   useEffect(() => {
     const checkPending = async () => {
-      const q = query(
-        collection(db, "payments"),
-        where("userId", "==", userProfile.uid),
-        where("status", "==", "pending")
-      );
-      const snap = await getDocs(q);
-      setHasPendingPayment(!snap.empty);
+      try {
+        const q = query(
+          collection(db, "payments"),
+          where("userId", "==", userProfile.uid),
+          where("status", "==", "pending")
+        );
+        const snap = await getDocs(q);
+        setHasPendingPayment(!snap.empty);
+      } catch (error) {
+        console.error("Error al verificar pagos pendientes:", error);
+        // Error silencioso para el usuario
+      }
     };
     checkPending();
   }, [userProfile.uid]);

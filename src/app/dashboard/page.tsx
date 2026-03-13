@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import ExpirationBanner from "@/components/ExpirationBanner";
 import PaymentCalendar from "@/components/PaymentCalendar";
 import PlanViewer from "@/components/PlanViewer";
@@ -11,19 +11,21 @@ import { getMembershipStatus } from "@/lib/membership";
 
 export default function ClientDashboard() {
   const { userProfile, authLoading, profileLoading } = useAuth();
+  const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (userProfile) {
+    if (userProfile && !authLoading && !profileLoading) {
       const { isFullyExpired } = getMembershipStatus(userProfile.subscriptionEnd.toDate());
       
       if (!userProfile.planId || userProfile.status !== "active" || isFullyExpired) {
+        setRedirecting(true);
         router.replace("/dashboard/onboarding");
       }
     }
-  }, [userProfile, router]);
+  }, [userProfile, authLoading, profileLoading, router]);
 
-  if (authLoading || profileLoading) {
+  if (authLoading || profileLoading || redirecting) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-brand-lime border-t-transparent" />
