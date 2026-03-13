@@ -13,7 +13,7 @@ interface AdminInicioProps {
 }
 
 export default function AdminInicio({ stats }: AdminInicioProps) {
-  const [events, setEvents] = useState<GymEvent[]>([]);
+  const [events, setEvents] = useState([] as GymEvent[]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
   // Modal State
@@ -55,7 +55,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
     }
   };
 
-  const handleDeleteEvent = async (id: string, e: React.MouseEvent) => {
+  const handleDeleteEvent = async (id: string, e: any) => {
     e.stopPropagation();
     if (confirm("¿Eliminar este evento?")) {
       await deleteDoc(doc(db, "gym_events", id));
@@ -101,15 +101,15 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
 
       {/* Interactive Calendar */}
       <section className="card overflow-hidden !p-0">
-        <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 bg-white/[0.02] p-6">
           <div>
             <h3 className="text-sm font-black uppercase tracking-widest text-gray-400">Calendario de Eventos</h3>
             <p className="text-xs text-gray-500 font-medium capitalize mt-1">
               {format(currentMonth, "MMMM yyyy", { locale: es })}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1 rounded-lg bg-surface-800 p-1 border border-white/5 mr-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex gap-1 rounded-lg bg-surface-800 p-1 border border-white/5 mr-0 sm:mr-4">
               <button onClick={prevMonth} className="p-1.5 text-gray-400 hover:bg-white/5 hover:text-white rounded-md transition-colors">
                 <ChevronLeft size={16} />
               </button>
@@ -122,7 +122,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
             </div>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-xs font-black text-white transition-all hover:shadow-glow active:scale-95 shadow-brand-primary/20"
+              className="flex shrink-0 items-center gap-2 rounded-lg bg-brand-primary px-4 py-2 text-xs font-black text-white transition-all hover:shadow-glow active:scale-95 shadow-brand-primary/20 whitespace-nowrap"
             >
               <Plus size={16} strokeWidth={3} />
               <span className="uppercase tracking-widest">Nuevo Evento</span>
@@ -140,7 +140,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
 
         <div className="grid grid-cols-7 border-collapse">
           {calendarDays.map((day, idx) => {
-            const dayEvents = events.filter(ev => isSameDay(ev.date.toDate(), day));
+            const dayEvents = events.filter((ev: GymEvent) => isSameDay(ev.date.toDate(), day));
             const isToday = isSameDay(day, new Date());
             const isCurrentMonth = isSameMonth(day, monthStart);
 
@@ -159,7 +159,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
                   </span>
                 </div>
                 <div className="space-y-1">
-                  {dayEvents.map(ev => (
+                  {dayEvents.map((ev: GymEvent) => (
                     <div 
                       key={ev.id} 
                       className={`group relative rounded-md border p-2 text-[9px] font-bold leading-tight transition-all hover:scale-[1.02] ${
@@ -169,7 +169,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
                       }`}
                     >
                       <button 
-                        onClick={(e) => handleDeleteEvent(ev.id, e)}
+                        onClick={(e: any) => handleDeleteEvent(ev.id, e)}
                         className="absolute -top-1 -right-1 hidden group-hover:flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-white"
                       >
                         <X size={10} strokeWidth={4} />
@@ -209,7 +209,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
                     type="date"
                     required
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    onChange={(e: any) => setFormData({ ...formData, date: e.target.value })}
                     className="w-full rounded-xl bg-surface-900 border border-white/10 pl-10 pr-4 py-3 text-sm text-white outline-none focus:border-brand-primary/50 transition-all font-bold"
                   />
                 </div>
@@ -222,7 +222,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
                   required
                   placeholder="Ej. Feriado Semana Santa"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e: any) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full rounded-xl bg-surface-900 border border-white/10 px-4 py-3 text-sm text-white outline-none focus:border-brand-primary/50 transition-all placeholder:text-gray-700 font-bold"
                 />
               </div>
@@ -232,7 +232,7 @@ export default function AdminInicio({ stats }: AdminInicioProps) {
                 <textarea 
                   placeholder="Detalles sobre el horario o motivo..."
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full h-24 rounded-xl bg-surface-900 border border-white/10 px-4 py-3 text-sm text-white outline-none focus:border-brand-primary/50 transition-all placeholder:text-gray-700 font-bold resize-none"
                 />
               </div>
