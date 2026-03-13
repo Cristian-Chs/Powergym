@@ -6,7 +6,7 @@ import { db } from "@/lib/firebase";
 import { Payment, UserProfile } from "@/types";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Search, ChevronLeft, ChevronRight, MessageCircle, AlertCircle } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, MessageCircle, AlertCircle } from "./Icons";
 
 export default function AdminTransactionsView() {
   const [transactions, setTransactions] = useState<Payment[]>([]);

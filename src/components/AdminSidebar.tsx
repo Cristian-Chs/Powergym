@@ -7,7 +7,7 @@ import {
   ClipboardList, 
   Menu, 
   X 
-} from "lucide-react";
+} from "./Icons";
 
 interface SidebarProps {
   activeView: string;

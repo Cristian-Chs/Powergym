@@ -11,7 +11,7 @@ import AdminNotifications from "@/components/AdminNotifications";
 import AdminInicio from "@/components/AdminInicio";
 import AdminTransactionsView from "@/components/AdminTransactionsView";
 import AdminPlansView from "@/components/AdminPlansView";
-import { Bell } from "lucide-react";
+import { Bell } from "@/components/Icons";
 
 export default function AdminDashboard({ activeView = "inicio" }: { activeView?: string }) {
   const { userProfile, authLoading, profileLoading } = useAuth();

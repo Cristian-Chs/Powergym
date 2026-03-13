@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import AdminPlanEditor from "@/components/AdminPlanEditor";
 import AdminUserRoutineEditor from "@/components/AdminUserRoutineEditor";
-import { Globe, UserCog } from "lucide-react";
+import { Globe, UserCog } from "./Icons";
 
 export default function AdminPlansView() {
   const [activeTab, setActiveTab] = useState<"global" | "personal">("global");

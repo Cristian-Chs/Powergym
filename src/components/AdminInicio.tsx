@@ -6,7 +6,7 @@ import { db } from "@/lib/firebase";
 import { UserProfile, GymEvent } from "@/types";
 import { differenceInDays, format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek, addMonths, subMonths } from "date-fns";
 import { es } from "date-fns/locale";
-import { Users, UserCheck, UserMinus, ShieldCheck, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Users, UserCheck, UserMinus, ShieldCheck, ChevronLeft, ChevronRight, Plus } from "./Icons";
 
 interface AdminInicioProps {
   stats: { total: number; active: number; pending: number; verifying: number };
