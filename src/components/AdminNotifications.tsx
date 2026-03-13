@@ -7,6 +7,7 @@ import { AdminNotification } from "@/types";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { approvePayment, rejectPayment } from "@/lib/payment";
+import { Bell, Trash2, Check, X } from "./Icons";
 
 export default function AdminNotifications() {
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
@@ -38,7 +39,7 @@ export default function AdminNotifications() {
     }
   };
 
-  const handleApprove = async (e: React.MouseEvent, n: AdminNotification) => {
+  const handleApprove = async (e: any, n: AdminNotification) => {
     e.stopPropagation();
     if (!n.paymentId) return;
     setProcId(n.id);
@@ -51,7 +52,7 @@ export default function AdminNotifications() {
     }
   };
 
-  const handleReject = async (e: React.MouseEvent, n: AdminNotification) => {
+  const handleReject = async (e: any, n: AdminNotification) => {
     e.stopPropagation();
     if (!n.paymentId) return;
     if (!confirm("¿Rechazar este pago?")) return;
@@ -65,7 +66,7 @@ export default function AdminNotifications() {
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDelete = async (e: any, id: string) => {
     e.stopPropagation();
     try {
       await deleteDoc(doc(db, "notifications", id));
@@ -80,9 +81,7 @@ export default function AdminNotifications() {
         onClick={() => setIsOpen(!isOpen)}
         className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-surface-800 border border-white/5 text-gray-400 transition-all hover:bg-surface-700 hover:text-white"
       >
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
+        <Bell size={20} />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-lime text-[10px] font-bold text-surface-900">
             {unreadCount}
@@ -94,13 +93,13 @@ export default function AdminNotifications() {
         <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-white/5 bg-surface-800 p-2 shadow-2xl animate-fade-in z-[100]">
           <div className="p-3 border-b border-white/5 flex justify-between items-center">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Notificaciones</h3>
-            {unreadCount > 0 && <span className="text-[10px] text-brand-lime underline cursor-pointer" onClick={() => notifications.forEach(n => !n.read && markAsRead(n.id))}>Marcar todas como leídas</span>}
+            {unreadCount > 0 && <span className="text-[10px] text-brand-lime underline cursor-pointer" onClick={() => notifications.forEach((n: AdminNotification) => !n.read && markAsRead(n.id))}>Marcar todas como leídas</span>}
           </div>
           <div className="max-h-96 overflow-y-auto pt-2">
             {notifications.length === 0 ? (
               <p className="p-8 text-center text-xs text-gray-500 italic">No hay notificaciones</p>
             ) : (
-              notifications.map((n) => (
+              notifications.map((n: AdminNotification) => (
                 <div
                   key={n.id}
                   onClick={() => !n.read && markAsRead(n.id)}
@@ -117,9 +116,7 @@ export default function AdminNotifications() {
                         className="p-1 text-gray-600 hover:text-red-400 transition-colors"
                         title="Eliminar"
                       >
-                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        <Trash2 size={12} />
                       </button>
                     </div>
                   </div>
@@ -174,9 +171,7 @@ export default function AdminNotifications() {
                   {n.paymentStatus === "completed" && (
                     <div className="mt-1 flex items-center justify-between">
                       <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
-                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <Check size={12} strokeWidth={3} />
                         Pago Aprobado
                       </p>
                       <button
@@ -195,9 +190,7 @@ export default function AdminNotifications() {
                   {n.paymentStatus === "rejected" && (
                     <div className="mt-1 flex items-center justify-between">
                       <p className="text-[10px] text-red-400 font-bold flex items-center gap-1">
-                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <X size={12} strokeWidth={3} />
                         Pago Rechazado
                       </p>
                       <button

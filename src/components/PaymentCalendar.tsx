@@ -6,6 +6,7 @@ import { GymEvent } from "@/types";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import "react-day-picker/dist/style.css";
+import { X } from "./Icons";
 
 interface Props {
   subscriptionEnd: Date;
@@ -30,12 +31,12 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
     return () => unsubscribe();
   }, []);
 
-  const closedDays = events.filter(e => !e.isOpen).map(e => e.date.toDate());
-  const specialEvents = events.filter(e => e.isOpen).map(e => e.date.toDate());
+  const closedDays = events.filter((e: GymEvent) => !e.isOpen).map((e: GymEvent) => e.date.toDate());
+  const specialEvents = events.filter((e: GymEvent) => e.isOpen).map((e: GymEvent) => e.date.toDate());
 
   const handleDayClick = (day: Date) => {
     setSelectedDay(day);
-    const event = events.find(e => {
+    const event = events.find((e: GymEvent) => {
       const eDate = e.date.toDate();
       return eDate.getDate() === day.getDate() &&
              eDate.getMonth() === day.getMonth() &&
@@ -98,9 +99,7 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
                 onClick={() => setSelectedDay(undefined)}
                 className="text-gray-500 hover:text-white transition-colors"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X size={16} />
               </button>
             </div>
             {selectedEvent ? (

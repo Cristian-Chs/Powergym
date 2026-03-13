@@ -6,8 +6,11 @@ import { AuthProvider } from "@/context/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PowerGym — Gestión de Gimnasios",
+  title: "PowerGym",
   description: "Plataforma administrativa para gimnasios",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 export default function RootLayout({

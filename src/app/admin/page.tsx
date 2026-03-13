@@ -9,8 +9,8 @@ import { differenceInDays } from "date-fns";
 import BcvRate from "@/components/BcvRate";
 import AdminNotifications from "@/components/AdminNotifications";
 import AdminInicio from "@/components/AdminInicio";
-import AdminTransactionsView from "@/components/AdminTransactionsView";
 import AdminPlansView from "@/components/AdminPlansView";
+import AdminClientsView from "@/components/AdminClientsView";
 import { Bell } from "@/components/Icons";
 import { useAdmin } from "@/context/AdminContext";
 
@@ -70,11 +70,13 @@ export default function AdminDashboard() {
         <div>
           <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">
             {activeView === "inicio" ? "Panel de Control" : 
+             activeView === "clientes" ? "Gestión de Clientes" :
              activeView === "transacciones" ? "Historial Financiero" : 
              "Gestor de Entrenamiento"}
           </h1>
           <p className="mt-1 text-xs font-medium text-gray-500 uppercase tracking-widest">
             {activeView === "inicio" ? "Monitorea tu gimnasio en tiempo real" : 
+             activeView === "clientes" ? "Administra la base de datos de usuarios" :
              activeView === "transacciones" ? "Gestiona membresías y pagos" : 
              "Diseña rutinas y planes nutricionales"}
           </p>
@@ -95,6 +97,7 @@ export default function AdminDashboard() {
       {/* View Content */}
       <div className="min-h-[70vh]">
         {activeView === "inicio" && <AdminInicio stats={stats} />}
+        {activeView === "clientes" && <AdminClientsView />}
         {activeView === "transacciones" && <AdminTransactionsView />}
         {activeView === "planes" && <AdminPlansView />}
       </div>

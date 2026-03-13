@@ -6,7 +6,8 @@ import {
   History, 
   ClipboardList, 
   Menu, 
-  X 
+  X,
+  Users
 } from "./Icons";
 import { useAdmin } from "@/context/AdminContext";
 
@@ -17,6 +18,7 @@ interface SidebarProps {
 
 const navItems = [
   { id: "inicio", label: "Inicio", icon: LayoutDashboard },
+  { id: "clientes", label: "Clientes", icon: Users },
   { id: "transacciones", label: "Transacciones", icon: History },
   { id: "planes", label: "Gestión de Planes", icon: ClipboardList },
 ];

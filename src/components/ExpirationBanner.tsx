@@ -3,6 +3,7 @@
 import { differenceInDays, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { getMembershipStatus } from "@/lib/membership";
+import { Calendar } from "./Icons";
 
 interface Props {
   subscriptionEnd: Date;
@@ -85,20 +86,7 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
                 : "bg-brand-primary/10 text-brand-primary"
           }`}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+          <Calendar size={28} />
         </div>
       </div>
     </div>
