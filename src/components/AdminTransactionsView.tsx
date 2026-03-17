@@ -84,7 +84,8 @@ export default function AdminTransactionsView() {
 
   const notifyWhatsApp = (phone: string, name: string) => {
     const msg = encodeURIComponent(`Hola ${name}, te recordamos que tu membresía en PowerGym ha expirado. ¡Te esperamos para renovar!`);
-    window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${msg}`, '_blank');
+    const cleanPhone = phone.replace(/\+/g, '').replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
   };
 
   return (
@@ -119,7 +120,7 @@ export default function AdminTransactionsView() {
                 </div>
               </div>
               <button 
-                onClick={() => notifyWhatsApp(user.phone || user.phoneNumber || '', user.displayName || '')}
+                onClick={() => notifyWhatsApp(user.phoneNumber || user.phone || '', user.displayName || '')}
                 className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400 transition-colors hover:bg-emerald-500 hover:text-white"
               >
                 <MessageCircle size={14} />
