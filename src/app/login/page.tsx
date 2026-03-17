@@ -3,14 +3,14 @@
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { AuthContextType } from "@/context/AuthContext";
 
-type RegisterStep = "form" | "recover";
+type RegisterStep = "form" | "recover" | "complete-google";
 
 export default function LoginPage() {
-  const { userProfile, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, firebaseUser } = useAuth();
+  const { userProfile, loading, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth() as AuthContextType;
   const router = useRouter();
 
   const [isLogin, setIsLogin] = useState(true);
@@ -19,14 +19,16 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [countryCode, setCountryCode] = useState("+58");
   const [phone, setPhone] = useState("");
-  const [registerStep, setRegisterStep] = useState<RegisterStep>("form");
-  const [error, setError] = useState<string | null>(null);
+  const [registerStep, setRegisterStep] = useState("form" as RegisterStep);
+  const [error, setError] = useState(null as string | null);
   const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && userProfile) {
       if (userProfile.role === "admin") {
         router.replace("/admin");
+      } else if (!userProfile.phoneNumber) {
+        setRegisterStep("complete-google");
       } else {
         router.replace("/dashboard");
       }
@@ -79,8 +81,28 @@ export default function LoginPage() {
     setError(null);
     setFormLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email);
+      const { resetPassword } = useAuth() as AuthContextType;
+      await resetPassword(email);
       setError("Correo de recuperación enviado. Revisa tu bandeja de entrada.");
+    } catch (err: any) {
+      setError(mapAuthError(err));
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleCompleteGoogle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phone.trim()) { setError("Por favor ingresa tu teléfono."); return; }
+    setError(null);
+    setFormLoading(true);
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const fullPhone = `${countryCode}${phone.replace(/\s/g, "")}`;
+        await updateDoc(doc(db, "users", currentUser.uid), { phoneNumber: fullPhone });
+        // After update, the useEffect will trigger redirect as userProfile updates via onSnapshot in AuthContext
+      }
     } catch (err: any) {
       setError(mapAuthError(err));
     } finally {
@@ -237,8 +259,58 @@ export default function LoginPage() {
             </form>
           )}
 
+          {/* ── Complete Profile (Google) ────────── */}
+          {registerStep === "complete-google" && (
+            <form onSubmit={handleCompleteGoogle} className="space-y-4 animate-fade-in">
+              <h3 className="text-sm font-black text-white uppercase tracking-widest text-center mb-2">¡Casi listo!</h3>
+              <p className="text-xs text-gray-400 mb-6 text-center">Para completar tu registro con Google, por favor ingresa tu número de teléfono.</p>
+              
+              <div className="space-y-1">
+                <label className="ml-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                  Teléfono de contacto
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={countryCode}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCountryCode(e.target.value)}
+                    className="rounded-xl border border-white/5 bg-surface-900/50 px-3 py-3 text-sm text-white outline-none focus:border-brand-primary/50"
+                  >
+                    <option value="+58">🇻🇪 +58</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+34">🇪🇸 +34</option>
+                    <option value="+57">🇨🇴 +57</option>
+                    <option value="+52">🇲🇽 +52</option>
+                    <option value="+54">🇦🇷 +54</option>
+                    <option value="+55">🇧🇷 +55</option>
+                    <option value="+51">🇵🇪 +51</option>
+                    <option value="+56">🇨🇱 +56</option>
+                  </select>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="4141234567"
+                    value={phone}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
+                    className="flex-1 rounded-xl border border-white/5 bg-surface-900/50 px-4 py-3 text-sm text-white placeholder:text-gray-600 outline-none transition-all focus:border-brand-primary/50"
+                  />
+                </div>
+              </div>
+
+              {error && <ErrorBox msg={error} />}
+              <SubmitButton loading={formLoading} label="Finalizar Registro" />
+              
+              <button
+                type="button"
+                onClick={() => auth.signOut()}
+                className="w-full text-center text-xs font-medium text-gray-500 transition-colors hover:text-gray-300 mt-2"
+              >
+                Cancelar y Salir
+              </button>
+            </form>
+          )}
+
           {/* ── Divider + Google ──────────────────── */}
-          {true && (
+          {registerStep !== "complete-google" && (
             <>
               <div className="relative my-8">
                 <div className="absolute inset-0 flex items-center">

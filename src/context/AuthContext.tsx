@@ -14,9 +14,10 @@ import {
   signInWithPopup,
   signOut,
   updateProfile,
+  sendPasswordResetEmail,
   User,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, onSnapshot } from "firebase/firestore";
 import { auth, googleProvider, db } from "@/lib/firebase";
 import { UserProfile } from "@/types";
 import { addMonths } from "date-fns";
@@ -32,6 +33,7 @@ export interface AuthContextType {
   signInWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string, name: string, phone?: string) => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -44,6 +46,7 @@ const AuthContext = createContext<AuthContextType>({
   signInWithEmail: async () => {},
   signUpWithEmail: async () => {},
   logout: async () => {},
+  resetPassword: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -56,25 +59,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    let unsubscribeProfile: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user: User | null) => {
       console.log("onAuthStateChanged:", user ? `Usuario: ${user.email}` : "Sin usuario");
       setFirebaseUser(user);
-      setAuthLoading(false); // Auth is resolved quickly
+      setAuthLoading(false);
 
       if (user) {
         setProfileLoading(true);
-        try {
-          const userRef = doc(db, "users", user.uid);
-          const snap = await getDoc(userRef);
-
+        const userRef = doc(db, "users", user.uid);
+        
+        unsubscribeProfile = onSnapshot(userRef, async (snap) => {
           if (snap.exists()) {
-            console.log("Perfil encontrado.");
+            console.log("Perfil actualizado detectado.");
             const data = snap.data();
             setUserProfile({ uid: user.uid, ...data } as UserProfile);
             
-            // Set cookie for middleware
             const role = data.role || "client";
             document.cookie = `session=${role};path=/;max-age=${60 * 60 * 24 * 30};SameSite=Lax`;
+            setProfileLoading(false);
           } else {
             console.log("Creando perfil nuevo...");
             const newProfile: UserProfile = {
@@ -88,25 +92,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               createdAt: Timestamp.now(),
             };
             await setDoc(userRef, newProfile);
-            setUserProfile(newProfile);
-            document.cookie = `session=client;path=/;max-age=${60 * 60 * 24 * 30};SameSite=Lax`;
+            // onSnapshot will catch this new profile
           }
-        } catch (error: any) {
-          console.error("Error en Firestore:", error);
-          if (error.code === "permission-denied") {
-            // alert("Firestore Error: Permisos denegados. Revisa la pestaña 'Reglas' en Firebase.");
-          }
-        } finally {
+        }, (error) => {
+          console.error("Error en onSnapshot perfil:", error);
           setProfileLoading(false);
-        }
+        });
       } else {
+        if (unsubscribeProfile) unsubscribeProfile();
         setUserProfile(null);
         setProfileLoading(false);
         document.cookie = "session=;path=/;max-age=0;SameSite=Lax";
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
@@ -137,12 +140,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setAuthLoading(true);
       const result = await createUserWithEmailAndPassword(auth, email, pass);
-      // Set the display name immediately so Firestore profile creation picks it up
       await updateProfile(result.user, { displayName: name });
-      // The onAuthStateChanged listener will create the Firestore profile
     } catch (error: any) {
       console.error("Error al registrarse con email:", error);
       throw error;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    try {
+      setAuthLoading(true);
+      await sendPasswordResetEmail(auth, email);
     } finally {
       setAuthLoading(false);
     }
@@ -156,7 +166,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/login");
   };
 
-  // Para compatibilidad hacia atrás, 'loading' refleja el estado inicial crítico
   const loading = authLoading;
 
   return (
@@ -170,7 +179,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle, 
         signInWithEmail,
         signUpWithEmail,
-        logout 
+        logout,
+        resetPassword
       }}
     >
       {children}
