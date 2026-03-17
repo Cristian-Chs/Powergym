@@ -36,8 +36,9 @@ export default function AdminExpiredUsers() {
   }, []);
 
   const sendWhatsApp = (user: UserProfile) => {
-    const message = encodeURIComponent(`Hola ${user.displayName}, te recordamos que tu membresía en PowerGym ha expirado. ¡Te esperamos pronto para seguir entrenando!`);
-    const phone = user.phoneNumber || "";
+    const phone = user.phone || user.phoneNumber || "";
+    const name = user.displayName || "Cliente";
+    const message = encodeURIComponent(`Hola ${name}, te recordamos que tu membresía en PowerGym ha expirado. ¡Te esperamos pronto para seguir entrenando!`);
     window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${message}`, "_blank");
   };
 

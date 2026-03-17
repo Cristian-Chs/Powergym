@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState } from "react";
 
-interface AdminContextType {
+export interface AdminContextType {
   activeView: string;
   setActiveView: (view: string) => void;
 }

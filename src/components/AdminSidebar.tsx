@@ -7,9 +7,11 @@ import {
   ClipboardList, 
   Menu, 
   X,
-  Users
+  Users,
+  LogOut
 } from "./Icons";
-import { useAdmin } from "@/context/AdminContext";
+import { useAdmin, AdminContextType } from "@/context/AdminContext";
+import { useAuth, AuthContextType } from "@/context/AuthContext";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -24,7 +26,8 @@ const navItems = [
 ];
 
 export default function AdminSidebar({ isOpen, setIsOpen }: SidebarProps) {
-  const { activeView, setActiveView } = useAdmin();
+  const { activeView, setActiveView } = useAdmin() as AdminContextType;
+  const { logout } = useAuth() as AuthContextType; 
   return (
     <>
       {/* Mobile Backdrop */}
@@ -73,7 +76,15 @@ export default function AdminSidebar({ isOpen, setIsOpen }: SidebarProps) {
           </nav>
 
           {/* Footer Info */}
-          <div className="p-6 border-t border-white/5">
+          <div className="p-4 space-y-4 border-t border-white/5">
+            <button
+              onClick={logout}
+              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold uppercase text-red-500/60 hover:bg-red-500/10 hover:text-red-500 transition-all border border-transparent hover:border-red-500/20"
+            >
+              <LogOut size={18} strokeWidth={2.5} />
+              <span className="tracking-widest">Cerrar Sesión</span>
+            </button>
+
             <div className="rounded-xl bg-surface-800 p-4 border border-white/5">
               <p className="text-[10px] font-black uppercase text-gray-500 tracking-tighter mb-1">Status</p>
               <div className="flex items-center gap-2">

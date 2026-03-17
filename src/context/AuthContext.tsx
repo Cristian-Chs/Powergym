@@ -22,7 +22,7 @@ import { UserProfile } from "@/types";
 import { addMonths } from "date-fns";
 import { useRouter } from "next/navigation";
 
-interface AuthContextType {
+export interface AuthContextType {
   firebaseUser: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
@@ -50,8 +50,8 @@ export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState(null as User | null);
+  const [userProfile, setUserProfile] = useState(null as UserProfile | null);
   const [authLoading, setAuthLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
 

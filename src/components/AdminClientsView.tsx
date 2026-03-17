@@ -9,9 +9,9 @@ import { es } from "date-fns/locale";
 import { Search, UserCheck, UserMinus, MessageCircle, MoreVertical, ShieldCheck } from "./Icons";
 
 export default function AdminClientsView() {
-  const [clients, setClients] = useState<UserProfile[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState<"all" | "active" | "expired">("all");
+  const [clients, setClients] = React.useState([] as UserProfile[]);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [filter, setFilter] = React.useState("all" as "all" | "active" | "expired");
 
   useEffect(() => {
     const q = query(collection(db, "users"), where("role", "!=", "admin"));
@@ -21,7 +21,7 @@ export default function AdminClientsView() {
     return () => unsubscribe();
   }, []);
 
-  const filteredClients = clients.filter(c => {
+  const filteredClients = clients.filter((c: UserProfile) => {
     const matchesSearch = (c.displayName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           c.email?.toLowerCase().includes(searchTerm.toLowerCase()));
     
@@ -52,7 +52,7 @@ export default function AdminClientsView() {
             type="text" 
             placeholder="Buscar por nombre o email..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
             className="w-full rounded-xl bg-surface-800 border border-white/10 pl-10 pr-4 py-3 text-sm text-white outline-none focus:border-brand-primary/50 transition-all placeholder:text-gray-700 font-bold"
           />
         </div>
@@ -73,7 +73,7 @@ export default function AdminClientsView() {
 
       {/* Grid of Clients */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {filteredClients.map(client => {
+        {filteredClients.map((client: UserProfile) => {
           const status = getStatus(client);
           return (
             <div key={client.uid} className="group relative card p-0 overflow-hidden transition-all hover:scale-[1.02] hover:border-brand-primary/30">
@@ -131,15 +131,39 @@ export default function AdminClientsView() {
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <div className="flex items-center gap-2">
                       <button className="flex h-10 items-center gap-2 rounded-xl bg-emerald-500/10 px-4 text-emerald-400 transition-all hover:bg-emerald-500 hover:text-white"
-                        onClick={() => window.open(`https://wa.me/${client.phone?.replace(/\D/g, '')}`, '_blank')}
+                        onClick={() => {
+                          const phone = client.phone || client.phoneNumber || "";
+                          const name = client.displayName || "Cliente";
+                          const message = encodeURIComponent(`Hola ${name}, te escribimos de PowerGym.`);
+                          window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+                        }}
                       >
                         <MessageCircle size={14} />
                         <span className="text-[10px] font-black uppercase tracking-widest">WhatsApp</span>
                       </button>
                     </div>
-                    <button className="h-10 w-10 flex items-center justify-center rounded-xl bg-surface-700 text-gray-400 hover:text-white transition-all">
-                      <MoreVertical size={16} />
-                    </button>
+                    
+                    <div className="relative group/menu">
+                      <button className="h-10 w-10 flex items-center justify-center rounded-xl bg-surface-700 text-gray-400 hover:text-white transition-all">
+                        <MoreVertical size={16} />
+                      </button>
+                      
+                      {/* Dropdown Menu */}
+                      <div className="absolute bottom-full right-0 mb-2 w-48 scale-95 opacity-0 pointer-events-none group-focus-within/menu:scale-100 group-focus-within/menu:opacity-100 group-focus-within/menu:pointer-events-auto transition-all duration-200 z-50">
+                        <div className="rounded-xl border border-white/10 bg-surface-800 p-2 shadow-2xl backdrop-blur-xl">
+                          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                            Ver Perfil
+                          </button>
+                          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+                            Editar Plan
+                          </button>
+                          <div className="my-1 border-t border-white/5" />
+                          <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[10px] font-black uppercase tracking-widest text-red-500/60 hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                            Suspender
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

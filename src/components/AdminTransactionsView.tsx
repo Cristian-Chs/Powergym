@@ -9,14 +9,14 @@ import { es } from "date-fns/locale";
 import { Search, ChevronLeft, ChevronRight, MessageCircle, AlertCircle, X } from "./Icons";
 
 export default function AdminTransactionsView() {
-  const [transactions, setTransactions] = useState<Payment[]>([]);
-  const [expiredUsers, setExpiredUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [selectedTx, setSelectedTx] = useState<Payment | any>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [lastDoc, setLastDoc] = useState<any>(null);
-  const [firstDoc, setFirstDoc] = useState<any>(null);
+  const [transactions, setTransactions] = React.useState([] as Payment[]);
+  const [expiredUsers, setExpiredUsers] = React.useState([] as UserProfile[]);
+  const [loading, setLoading] = React.useState(true);
+  const [page, setPage] = React.useState(1);
+  const [selectedTx, setSelectedTx] = React.useState(null as Payment | any);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [lastDoc, setLastDoc] = React.useState(null as any);
+  const [firstDoc, setFirstDoc] = React.useState(null as any);
   
   const itemsPerPage = 10;
 
@@ -66,7 +66,7 @@ export default function AdminTransactionsView() {
 
   const handleNext = () => {
     if (transactions.length === itemsPerPage) {
-      setPage(p => p + 1);
+      setPage((p: number) => p + 1);
       fetchTransactions('next');
     }
   };
@@ -83,8 +83,8 @@ export default function AdminTransactionsView() {
   );
 
   const notifyWhatsApp = (phone: string, name: string) => {
-    const msg = `Hola ${name}, te recordamos que tu membresía en PowerGym ha expirado. ¡Te esperamos para renovar!`;
-    window.open(`https://wa.me/${phone.replace(/\+/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+    const msg = encodeURIComponent(`Hola ${name}, te recordamos que tu membresía en PowerGym ha expirado. ¡Te esperamos para renovar!`);
+    window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${msg}`, '_blank');
   };
 
   return (
@@ -119,7 +119,7 @@ export default function AdminTransactionsView() {
                 </div>
               </div>
               <button 
-                onClick={() => notifyWhatsApp(user.phone || '', user.displayName || '')}
+                onClick={() => notifyWhatsApp(user.phone || user.phoneNumber || '', user.displayName || '')}
                 className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400 transition-colors hover:bg-emerald-500 hover:text-white"
               >
                 <MessageCircle size={14} />
