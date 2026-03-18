@@ -180,7 +180,7 @@ export default function LoginPage() {
           {/* ── Login form ───────────────────────── */}
           {isLogin && registerStep !== "recover" && (
             <form onSubmit={handleLogin} className="space-y-4 animate-fade-in">
-              <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="tu@email.com" />
+              <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="" />
               <Field label="Contraseña" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
 
               <div className="flex justify-end">
@@ -202,7 +202,7 @@ export default function LoginPage() {
           {isLogin && registerStep === "recover" && (
             <form onSubmit={handleRecoverPassword} className="space-y-4 animate-fade-in">
               <p className="text-xs text-gray-400 mb-4 text-center">Te enviaremos un enlace para restablecer tu contraseña.</p>
-              <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="tu@email.com" />
+              <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="" />
               {error && <ErrorBox msg={error} isSuccess={error.includes("enviado")} />}
               <SubmitButton loading={formLoading} label="Enviar enlace" />
               <button
@@ -219,7 +219,7 @@ export default function LoginPage() {
           {!isLogin && registerStep === "form" && (
             <form onSubmit={handleRegister} className="space-y-4 animate-fade-in">
               <Field label="Nombre Completo" type="text" value={name} onChange={setName} placeholder="Juan Pérez" required />
-              <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="tu@email.com" required />
+              <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="" required />
               <Field label="Contraseña" type="password" value={password} onChange={setPassword} placeholder="Mínimo 6 caracteres" required />
 
               {/* Phone field */}

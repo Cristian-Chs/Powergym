@@ -85,7 +85,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
               <span className="text-sm text-gray-400">Total a pagar</span>
               <div className="text-right">
                 <p className="text-3xl font-black text-white">${tier.price}</p>
-                <p className="text-xs text-brand-primary font-bold">≈ Bs. {totalPriceBs}</p>
+                <p className="text-xs text-brand-primary font-bold">Bs. {totalPriceBs}</p>
               </div>
             </div>
           </div>
@@ -95,9 +95,9 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
             <div className="rounded-xl border border-brand-primary/20 bg-brand-primary/5 p-4">
               <p className="mb-2 text-[10px] font-black uppercase text-brand-primary tracking-widest">Datos del Comercio</p>
               <div className="space-y-1 text-sm">
-                <p className="flex justify-between"><span className="text-gray-500">Banco:</span> <span className="text-gray-200 font-medium">Banesco</span></p>
-                <p className="flex justify-between"><span className="text-gray-500">Teléfono:</span> <span className="text-gray-200 font-medium">04246188448</span></p>
-                <p className="flex justify-between"><span className="text-gray-500">C.I:</span> <span className="text-gray-200 font-medium">V28735492</span></p>
+                <p className="flex justify-between"><span className="text-gray-500">Banco:</span> <span className="text-gray-200 font-medium">Venezuela (0102)</span></p>
+                <p className="flex justify-between"><span className="text-gray-500">Teléfono:</span> <span className="text-gray-200 font-medium">04126698857</span></p>
+                <p className="flex justify-between"><span className="text-gray-500">C.I:</span> <span className="text-gray-200 font-medium">V-19.442.747</span></p>
               </div>
             </div>
 
@@ -105,7 +105,6 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
               <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Tu Teléfono (Emisor)</label>
               <input 
                 required
-                placeholder="0414..."
                 value={formData.phone}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, phone: e.target.value})}
                 className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
@@ -116,7 +115,6 @@ export default function CheckoutModal({ isOpen, onClose, tier, userProfile }: Pr
               <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Número de Referencia (4 últimos dígitos)</label>
               <input 
                 required
-                placeholder="1234"
                 value={formData.reference}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, reference: e.target.value})}
                 className="w-full rounded-xl bg-surface-900 border border-white/5 p-3 text-sm text-gray-100 outline-none focus:border-brand-primary/50 transition-colors" 
