@@ -6,16 +6,23 @@ import { GymEvent } from "@/types";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import "react-day-picker/dist/style.css";
-import { X } from "./Icons";
+import { X, Dumbbell } from "./Icons";
+import { getWorkoutForDate } from "@/lib/workout";
+import { getDoc, doc } from "firebase/firestore";
+import { Plan, ExerciseDay } from "@/types";
 
 interface Props {
   subscriptionEnd: Date;
+  customExercises?: ExerciseDay[];
+  planId?: string;
 }
 
-export default function PaymentCalendar({ subscriptionEnd }: Props) {
+export default function PaymentCalendar({ subscriptionEnd, customExercises, planId }: Props) {
   const [events, setEvents] = useState<GymEvent[]>([]);
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(undefined);
   const [selectedEvent, setSelectedEvent] = useState<GymEvent | null>(null);
+  const [selectedWorkout, setSelectedWorkout] = useState<ExerciseDay | null>(null);
+  const [routines, setRoutines] = useState<ExerciseDay[]>(customExercises || []);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "gym_events"), 
@@ -31,6 +38,22 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const fetchRoutines = async () => {
+      if (customExercises && customExercises.length > 0) {
+        setRoutines(customExercises);
+        return;
+      }
+      if (planId) {
+        const planSnap = await getDoc(doc(db, "plans", planId));
+        if (planSnap.exists()) {
+          setRoutines((planSnap.data() as Plan).exercises || []);
+        }
+      }
+    };
+    fetchRoutines();
+  }, [customExercises, planId]);
+
   const closedDays = events.filter((e: GymEvent) => !e.isOpen).map((e: GymEvent) => e.date.toDate());
   const specialEvents = events.filter((e: GymEvent) => e.isOpen).map((e: GymEvent) => e.date.toDate());
 
@@ -43,6 +66,9 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
              eDate.getFullYear() === day.getFullYear();
     });
     setSelectedEvent(event || null);
+
+    const workout = getWorkoutForDate(day, routines);
+    setSelectedWorkout(workout || null);
   };
 
   return (
@@ -112,8 +138,27 @@ export default function PaymentCalendar({ subscriptionEnd }: Props) {
                 </div>
                 <p className="mt-1 text-[11px] text-gray-400">{selectedEvent.description}</p>
               </div>
+            ) : selectedWorkout ? (
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="flex h-5 w-5 items-center justify-center rounded bg-brand-primary/20 text-brand-primary">
+                    <Dumbbell size={12} />
+                  </div>
+                  <h4 className="text-sm font-bold text-white uppercase tracking-tight">{selectedWorkout.day}</h4>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {selectedWorkout.exercises.slice(0, 3).map((ex: any, i: number) => (
+                    <span key={i} className="rounded bg-surface-900 px-1.5 py-0.5 text-[8px] text-gray-400 uppercase font-bold">
+                      {ex.name}
+                    </span>
+                  ))}
+                  {selectedWorkout.exercises.length > 3 && (
+                    <span className="text-[8px] text-gray-600 font-bold">+{selectedWorkout.exercises.length - 3} más</span>
+                  )}
+                </div>
+              </div>
             ) : (
-              <p className="text-[11px] text-gray-500 italic">No hay eventos programados para este día.</p>
+              <p className="text-[11px] text-gray-500 italic">No hay eventos o entrenamientos para este día.</p>
             )}
           </div>
         </div>

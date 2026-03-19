@@ -3,13 +3,14 @@
 import { differenceInDays, format } from "date-fns";
 import { es } from "date-fns/locale";
 import { getMembershipStatus } from "@/lib/membership";
-import { Calendar } from "./Icons";
+import { Calendar, Dumbbell } from "./Icons";
 
 interface Props {
   subscriptionEnd: Date;
+  workoutToday?: string; // e.g. "Pierna", "Pecho"
 }
 
-export default function ExpirationBanner({ subscriptionEnd }: Props) {
+export default function ExpirationBanner({ subscriptionEnd, workoutToday }: Props) {
   const today = new Date();
   const daysLeft = differenceInDays(subscriptionEnd, today);
   const { isExpired } = getMembershipStatus(subscriptionEnd);
@@ -75,6 +76,32 @@ export default function ExpirationBanner({ subscriptionEnd }: Props) {
             </>
           )}
         </div>
+
+        {workoutToday && (
+          <div className="hidden sm:block border-l border-white/5 pl-6">
+            <h3 className="text-[10px] font-black tracking-widest text-gray-500 uppercase">
+              Hoy entrena:
+            </h3>
+            <div className="mt-1 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
+                <Dumbbell size={18} />
+              </div>
+              <p className="text-lg font-black text-white uppercase tracking-tighter">
+                {workoutToday}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile workout badge */}
+        {workoutToday && (
+          <div className="absolute top-4 right-20 sm:hidden">
+             <div className="flex items-center gap-1.5 rounded-full bg-brand-primary/10 px-2.5 py-1 border border-brand-primary/20">
+                <Dumbbell size={12} className="text-brand-primary" />
+                <span className="text-[9px] font-black text-brand-primary uppercase">{workoutToday}</span>
+             </div>
+          </div>
+        )}
 
         {/* Icon */}
         <div
