@@ -47,13 +47,6 @@ export default function OnboardingPage() {
           </div>
         )}
         <div className="mb-12 text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl overflow-hidden mb-6 shadow-glow border border-white/5 bg-surface-800">
-            <img 
-              src="/LOGO.png" 
-              alt="PowerGym Logo" 
-              className="h-full w-full object-cover"
-            />
-          </div>
           <h1 className="text-4xl font-black text-white sm:text-5xl tracking-tight mb-4">
             Bienvenido a <span className="text-brand-primary">PowerGym</span>
           </h1>

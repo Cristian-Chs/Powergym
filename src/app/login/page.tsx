@@ -142,13 +142,6 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md animate-fade-in py-12">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center">
-          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl overflow-hidden shadow-glow-lg transition-transform hover:scale-110 border border-white/10">
-            <img 
-              src="/LOGO.png" 
-              alt="PowerGym Logo" 
-              className="h-full w-full object-cover"
-            />
-          </div>
           <h1 className="text-4xl font-black tracking-tight text-white">
             Power<span className="text-brand-primary">Gym</span>
           </h1>
