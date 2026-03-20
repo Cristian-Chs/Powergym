@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: "PowerGym",
   description: "Plataforma administrativa para gimnasios",
   icons: {
-    icon: "/icon.png",
+    icon: "/LOGO.png",
   },
 };
 

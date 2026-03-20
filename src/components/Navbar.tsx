@@ -50,7 +50,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href={isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2.5 group">
           <img 
-            src="/logo.png" 
+            src="/LOGO.png" 
             alt="PowerGym Logo" 
             className="h-10 w-auto transition-transform group-hover:scale-105"
           />

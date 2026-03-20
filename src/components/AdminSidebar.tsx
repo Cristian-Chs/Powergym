@@ -44,7 +44,7 @@ export default function AdminSidebar({ isOpen, setIsOpen }: SidebarProps) {
           {/* Logo Section */}
           <div className="flex h-20 items-center justify-center px-6 border-b border-white/5">
             <img 
-              src="/logo.png" 
+              src="/LOGO.png" 
               alt="PowerGym Logo" 
               className="h-12 w-auto object-contain"
             />
