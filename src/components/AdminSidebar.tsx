@@ -42,16 +42,12 @@ export default function AdminSidebar({ isOpen, setIsOpen }: SidebarProps) {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform bg-[#121212] transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-full flex-col border-r border-white/5">
           {/* Logo Section */}
-          <div className="flex h-16 items-center justify-between px-6">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-brand-primary flex items-center justify-center">
-                <span className="font-black text-white text-lg italic">P</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight text-white uppercase italic">Power<span className="text-brand-primary">Gym</span></span>
-            </div>
-            <button className="lg:hidden text-gray-400 hover:text-white" onClick={() => setIsOpen(false)}>
-              <X size={20} />
-            </button>
+          <div className="flex h-20 items-center justify-center px-6 border-b border-white/5">
+            <img 
+              src="/logo.png" 
+              alt="PowerGym Logo" 
+              className="h-12 w-auto object-contain"
+            />
           </div>
 
           {/* Nav Items */}

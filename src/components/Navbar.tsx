@@ -49,17 +49,11 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
         {/* Logo */}
         <Link href={isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-primary shadow-glow transition-transform group-hover:scale-110">
-            <LayoutDashboard size={20} className="text-white" />
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
-            <span className="text-xl font-black tracking-tight text-white">
-              Power<span className="text-brand-primary">Gym</span>
-            </span>
-            <span className="hidden text-xs font-medium text-gray-500 sm:block">
-              Gestión de Gimnasio
-            </span>
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="PowerGym Logo" 
+            className="h-10 w-auto transition-transform group-hover:scale-105"
+          />
         </Link>
 
         {/* User dropdown */}

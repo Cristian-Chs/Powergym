@@ -188,8 +188,3 @@ export const WhatsApp = ({ size = 24, ...props }) => (
   </svg>
 );
 
-export const Dumbbell = ({ size = 24, ...props }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M6.5 6.5 4 9" /><path d="m21.5 21.5-2.5-2.5" /><path d="m6.5 17.5-2.5 2.5" /><path d="m21.5 6.5-2.5 2.5" /><path d="m7.7 7.7 8.6 8.6" /><path d="m7.7 16.3 8.6-8.6" /><path d="M15.5 6.5 18 9" /><path d="m6.5 21.5 2.5-2.5" /><path d="m21.5 17.5-2.5-2.5" /><path d="m15.5 21.5 2.5-2.5" />
-  </svg>
-);
