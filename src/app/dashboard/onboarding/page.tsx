@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { getMembershipStatus } from "@/lib/membership";
 
 export default function OnboardingPage() {
-  const { userProfile, authLoading, profileLoading } = useAuth();
+  const { userProfile, authLoading, profileLoading } = useAuth() as any;
   const [showPlans, setShowPlans] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const router = useRouter();
@@ -47,10 +47,12 @@ export default function OnboardingPage() {
           </div>
         )}
         <div className="mb-12 text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-primary/10 mb-6 shadow-glow">
-            <svg className="h-10 w-10 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl overflow-hidden mb-6 shadow-glow border border-white/5 bg-surface-800">
+            <img 
+              src="/LOGO.png" 
+              alt="PowerGym Logo" 
+              className="h-full w-full object-cover"
+            />
           </div>
           <h1 className="text-4xl font-black text-white sm:text-5xl tracking-tight mb-4">
             Bienvenido a <span className="text-brand-primary">PowerGym</span>
